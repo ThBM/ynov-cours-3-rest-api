@@ -6,6 +6,10 @@ services:
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: mydatabase
+      POSTGRES_DB: mydb
     ports:
       - "5432:5432"
+  adminer:
+    image: adminer
+    ports:
+      - "8080:8080"

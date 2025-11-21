@@ -2,7 +2,6 @@ import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import z from "zod";
 import { terrainRepository } from "../repositories/terrainRepository.js";
-import { id } from "zod/locales";
 
 export const terrainsRouter = new Hono();
 
