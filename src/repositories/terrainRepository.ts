@@ -1,4 +1,5 @@
 import { prisma } from "../lib/prisma.js";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client";
 
 export const terrainRepository = {
   async getAllTerrains(options: { page?: number; itemsPerPage?: number }) {
@@ -26,35 +27,46 @@ export const terrainRepository = {
   async createTerrain(terrainData: Omit<Terrain, "id">) {
     const res = await prisma.terrain.create({
       data: {
-        nom: terrainData.nom,
-        latitude: terrainData.latitude,
-        longitude: terrainData.longitude,
-        surface: terrainData.surface,
-        surfaceConstructible: terrainData.surfaceConstructible,
-        prix: terrainData.prix,
-        longueurFacade: terrainData.longueurFacade,
-        orientationFacade: terrainData.orientationFacade,
+        ...terrainData,
       },
     });
 
     return res;
   },
 
-  async updateTerrain(id: string, terrainData: Partial<Omit<Terrain, "id">>) {
-    const updatedTerrain = await prisma.terrain.update({
-      where: { id },
-      data: terrainData,
-    });
+  async updateTerrain(id: string, terrainData: Omit<Terrain, "id">) {
+    try {
+      const updatedTerrain = await prisma.terrain.update({
+        where: { id },
+        data: terrainData,
+      });
 
-    return updatedTerrain;
+      return updatedTerrain;
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          return null;
+        }
+      }
+      throw error;
+    }
   },
 
   async deleteTerrain(id: string) {
-    await prisma.terrain.delete({
-      where: { id },
-    });
+    try {
+      await prisma.terrain.delete({
+        where: { id },
+      });
 
-    return true;
+      return true;
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          return false;
+        }
+      }
+      throw error;
+    }
   },
 };
 

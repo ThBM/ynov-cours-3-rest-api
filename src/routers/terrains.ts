@@ -39,6 +39,10 @@ terrainsRouter.get(
 
     const terrain = await terrainRepository.getTerrainById(id);
 
+    if (!terrain) {
+      return c.json({ message: "Terrain not found" }, 404);
+    }
+
     return c.json(terrain);
   }
 );
@@ -97,6 +101,10 @@ terrainsRouter.put(
       terrainData
     );
 
+    if (!updatedTerrain) {
+      return c.json({ message: "Terrain not found" }, 404);
+    }
+
     return c.json(updatedTerrain);
   }
 );
@@ -111,7 +119,12 @@ terrainsRouter.delete(
   ),
   async (c) => {
     const { id } = c.req.valid("param");
-    await terrainRepository.deleteTerrain(id);
+    const res = await terrainRepository.deleteTerrain(id);
+
+    if (!res) {
+      return c.json({ message: "Terrain not found" }, 404);
+    }
+
     return c.status(204);
   }
 );
