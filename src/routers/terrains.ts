@@ -11,8 +11,8 @@ terrainsRouter.get(
   zValidator(
     "query",
     z.object({
-      page: z.number().default(1),
-      itemsPerPage: z.number().default(10),
+      page: z.coerce.number().default(1),
+      itemsPerPage: z.coerce.number().default(10),
     })
   ),
   async (c) => {
@@ -56,7 +56,7 @@ terrainsRouter.post(
       surfaceConstructible: z.number().min(0),
       prix: z.number().min(0),
       longueurFacade: z.number().min(0),
-      orientationFacade: z.enum(["Nord", "Sud", "Est", "Ouest"]),
+      orientationFacade: z.enum(["NORD", "SUD", "EST", "OUEST"]),
     })
   ),
   async (c) => {
@@ -86,7 +86,7 @@ terrainsRouter.put(
       surfaceConstructible: z.number().min(0),
       prix: z.number().min(0),
       longueurFacade: z.number().min(0),
-      orientationFacade: z.enum(["Nord", "Sud", "Est", "Ouest"]),
+      orientationFacade: z.enum(["NORD", "SUD", "EST", "OUEST"]),
     })
   ),
   async (c) => {
