@@ -2,11 +2,13 @@ import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import z from "zod";
 import { terrainRepository } from "../repositories/terrainRepository.js";
+import { auth } from "../middlewares/auth.js";
 
 export const terrainsRouter = new Hono();
 
 terrainsRouter.get(
   "/",
+  auth,
   zValidator(
     "query",
     z.object({
@@ -32,6 +34,7 @@ terrainsRouter.get(
 
 terrainsRouter.get(
   "/:id",
+  auth,
   zValidator(
     "param",
     z.object({
@@ -53,6 +56,7 @@ terrainsRouter.get(
 
 terrainsRouter.post(
   "/",
+  auth,
   zValidator(
     "json",
     z.object({
@@ -69,7 +73,12 @@ terrainsRouter.post(
   async (c) => {
     const terrainData = c.req.valid("json");
 
-    const terrain = await terrainRepository.createTerrain(terrainData);
+    const { id: userId } = c.get("user");
+
+    const terrain = await terrainRepository.createTerrain({
+      ...terrainData,
+      userId,
+    });
 
     return c.json(terrain, 201);
   }
@@ -77,6 +86,7 @@ terrainsRouter.post(
 
 terrainsRouter.put(
   "/:id",
+  auth,
   zValidator(
     "param",
     z.object({
@@ -99,6 +109,13 @@ terrainsRouter.put(
   async (c) => {
     const { id } = c.req.valid("param");
     const terrainData = c.req.valid("json");
+
+    const { id: userId } = c.get("user");
+
+    const theTerrain = await terrainRepository.getTerrainById(id);
+    if (!theTerrain || theTerrain.userId !== userId) {
+      return c.json({ message: "Forbidden" }, 403);
+    }
 
     const updatedTerrain = await terrainRepository.updateTerrain(
       id,
@@ -115,6 +132,7 @@ terrainsRouter.put(
 
 terrainsRouter.delete(
   "/:id",
+  auth,
   zValidator(
     "param",
     z.object({
@@ -123,12 +141,20 @@ terrainsRouter.delete(
   ),
   async (c) => {
     const { id } = c.req.valid("param");
+
+    const { id: userId } = c.get("user");
+
+    const theTerrain = await terrainRepository.getTerrainById(id);
+    if (!theTerrain || theTerrain.userId !== userId) {
+      return c.json({ message: "Forbidden" }, 403);
+    }
+
     const res = await terrainRepository.deleteTerrain(id);
 
     if (!res) {
       return c.json({ message: "Terrain not found" }, 404);
     }
 
-    return c.status(204);
+    return c.json({ success: true }, 202);
   }
 );

@@ -23,6 +23,8 @@ model Terrain {
   prix                 Float
   longueurFacade       Float
   orientationFacade    OrientationFacade
+  userId               String            @db.Uuid
+  user                 User              @relation(fields: [userId], references: [id])
 }
 
 enum OrientationFacade {
@@ -33,8 +35,9 @@ enum OrientationFacade {
 }
 
 model User {
-  id       String @id @default(uuid()) @db.Uuid
-  username String @unique
+  id       String    @id @default(uuid()) @db.Uuid
+  username String    @unique
   password String
   name     String
+  terrains Terrain[]
 }

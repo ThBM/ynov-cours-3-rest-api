@@ -8,6 +8,7 @@ export const terrainRepository = {
     itemsPerPage?: number;
     nom?: string;
     prix?: string;
+    userId?: string;
   }) {
     // Filters
     const where: TerrainWhereInput = {};
@@ -23,6 +24,9 @@ export const terrainRepository = {
       } else if (operator === "gte") {
         where.prix = { gte: val };
       }
+    }
+    if (options.userId) {
+      where.userId = options.userId;
     }
 
     // Paginate results
@@ -46,17 +50,47 @@ export const terrainRepository = {
     return res;
   },
 
-  async createTerrain(terrainData: Omit<Terrain, "id">) {
+  async createTerrain(terrainData: {
+    nom: string;
+    latitude: number;
+    longitude: number;
+    surface: number;
+    surfaceConstructible: number;
+    prix: number;
+    longueurFacade: number;
+    orientationFacade: "NORD" | "SUD" | "EST" | "OUEST";
+    userId: string;
+  }) {
     const res = await prisma.terrain.create({
       data: {
-        ...terrainData,
+        nom: terrainData.nom,
+        latitude: terrainData.latitude,
+        longitude: terrainData.longitude,
+        surface: terrainData.surface,
+        surfaceConstructible: terrainData.surfaceConstructible,
+        prix: terrainData.prix,
+        longueurFacade: terrainData.longueurFacade,
+        orientationFacade: terrainData.orientationFacade,
+        user: { connect: { id: terrainData.userId } },
       },
     });
 
     return res;
   },
 
-  async updateTerrain(id: string, terrainData: Omit<Terrain, "id">) {
+  async updateTerrain(
+    id: string,
+    terrainData: {
+      nom: string;
+      latitude: number;
+      longitude: number;
+      surface: number;
+      surfaceConstructible: number;
+      prix: number;
+      longueurFacade: number;
+      orientationFacade: "NORD" | "SUD" | "EST" | "OUEST";
+    }
+  ) {
     try {
       const updatedTerrain = await prisma.terrain.update({
         where: { id },
@@ -90,16 +124,4 @@ export const terrainRepository = {
       throw error;
     }
   },
-};
-
-type Terrain = {
-  id: string;
-  nom: string;
-  latitude: number;
-  longitude: number;
-  surface: number;
-  surfaceConstructible: number;
-  prix: number;
-  longueurFacade: number;
-  orientationFacade: "NORD" | "SUD" | "EST" | "OUEST";
 };
