@@ -1,0 +1,20 @@
+meta {
+  name: GET /terrains
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{host}}/terrains
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  ABC
+}

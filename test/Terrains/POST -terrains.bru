@@ -1,0 +1,33 @@
+meta {
+  name: POST /terrains
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/terrains
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+      "nom": "Lille 1",
+      "latitude": 49,
+      "longitude": 2,
+      "surface": 800,
+      "surfaceConstructible": 200,
+      "prix": 70000,
+      "longueurFacade": 8,
+      "orientationFacade": "SUD"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  ABC
+}
