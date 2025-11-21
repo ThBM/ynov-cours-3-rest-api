@@ -12,14 +12,18 @@ terrainsRouter.get(
     z.object({
       page: z.coerce.number().default(1),
       itemsPerPage: z.coerce.number().default(10),
+      nom: z.string().optional(),
+      prix: z.string().optional(),
     })
   ),
   async (c) => {
-    const { page, itemsPerPage } = c.req.valid("query");
+    const { page, itemsPerPage, nom, prix } = c.req.valid("query");
 
     const terrains = await terrainRepository.getAllTerrains({
       page,
       itemsPerPage,
+      nom,
+      prix,
     });
 
     return c.json(terrains);

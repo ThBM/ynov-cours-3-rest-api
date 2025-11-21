@@ -1,16 +1,38 @@
+import type { TerrainWhereInput } from "../generated/prisma/models.js";
 import { prisma } from "../lib/prisma.js";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client";
 
 export const terrainRepository = {
-  async getAllTerrains(options: { page?: number; itemsPerPage?: number }) {
+  async getAllTerrains(options: {
+    page?: number;
+    itemsPerPage?: number;
+    nom?: string;
+    prix?: string;
+  }) {
+    // Filters
+    const where: TerrainWhereInput = {};
+    if (options.nom) {
+      where.nom = { contains: options.nom, mode: "insensitive" };
+    }
+    if (options.prix) {
+      const [operator, ...values] = options.prix.split(".");
+      const val = Number(values.join("."));
+
+      if (operator === "lte") {
+        where.prix = { lte: val };
+      } else if (operator === "gte") {
+        where.prix = { gte: val };
+      }
+    }
+
     // Paginate results
     const { page = 1, itemsPerPage = 10 } = options;
     const startIndex = (page - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
 
     const res = await prisma.terrain.findMany({
       skip: startIndex,
       take: itemsPerPage,
+      where,
     });
 
     return res;
