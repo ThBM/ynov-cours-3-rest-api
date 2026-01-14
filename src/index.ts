@@ -13,10 +13,12 @@ app.route("/auth", authRouter);
 app.route("/terrains", terrainsRouter);
 app.route("/users", usersRouter);
 
+const { PORT } = process.env;
+
 serve(
   {
     fetch: app.fetch,
-    port: 3000,
+    port: PORT ? Number(PORT) : 3000,
   },
   (info) => {
     console.log(`Server is running on http://localhost:${info.port}`);
