@@ -23,7 +23,20 @@ jobs:
       - name: Install Dependencies
         run: pnpm install
 
+      - name: Install Scalingo CLI
+        run: curl -O https://cli-dl.scalingo.com/install && bash install
+
+      - name: login to Scalingo
+        env:
+          SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
+        run: scalingo login --api-token $SCALINGO_API_TOKEN
+
       - name: Run Database Migrations
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: npx prisma migrate deploy
+          DATABASE_USER: ${{ secrets.DATABASE_USER }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+          DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+        run: |
+          scalingo -a ynov-test --region osc-fr1 db-tunnel SCALINGO_POSTGRESQL_URL
+          export DATABASE_URL="postgres://$DATABASE_USER:$DATABASE_PASSWORD@localhost:10000/$DATABASE_NAME?sslmode=prefer"
+          npx prisma migrate deploy
