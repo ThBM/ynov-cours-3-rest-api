@@ -11,9 +11,15 @@ services:
     image: adminer
     ports:
       - "8080:8080"
-  minio:
-    image: minio/minio
-    command: server /data --console-address ":9001"
+  # minio:
+  #   image: minio/minio
+  #   command: server /data --console-address ":9001"
+  #   ports:
+  #     - "9000:9000"
+  #     - "9001:9001"
+  rustfs:
+    image: rustfs/rustfs
+    command: /data
     ports:
       - "9000:9000"
       - "9001:9001"

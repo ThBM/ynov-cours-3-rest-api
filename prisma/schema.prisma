@@ -25,6 +25,7 @@ model Terrain {
   orientationFacade    OrientationFacade
   userId               String            @db.Uuid
   user                 User              @relation(fields: [userId], references: [id])
+  photos               Photo[]
 }
 
 enum OrientationFacade {
@@ -40,4 +41,10 @@ model User {
   password String
   name     String
   terrains Terrain[]
+}
+
+model Photo {
+  id        String  @id @default(uuid()) @db.Uuid
+  terrainId String  @db.Uuid
+  terrain   Terrain @relation(fields: [terrainId], references: [id])
 }

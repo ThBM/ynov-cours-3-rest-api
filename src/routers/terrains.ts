@@ -158,3 +158,59 @@ terrainsRouter.delete(
     return c.json({ success: true }, 202);
   }
 );
+
+terrainsRouter.post(
+  "/:id/photos",
+  auth,
+  zValidator("param", z.object({ id: z.uuid() })),
+  zValidator(
+    "form",
+    z.object({
+      file: z
+        .instanceof(File)
+        .refine((file) => file.type.startsWith("image/"), {
+          message: "File must be an image",
+        }),
+    })
+  ),
+  async (c) => {
+    const { id } = c.req.valid("param");
+    const { id: userId } = c.get("user");
+
+    // Authorization check
+    const theTerrain = await terrainRepository.getTerrainById(id);
+    if (!theTerrain || theTerrain.userId !== userId) {
+      return c.json({ message: "Forbidden" }, 403);
+    }
+
+    const { file } = c.req.valid("form");
+    const fileBuffer = await file.arrayBuffer();
+    await terrainRepository.addPhotoToTerrain(
+      id,
+      Buffer.from(fileBuffer),
+      file.type
+    );
+
+    return c.json({ success: true }, 201);
+  }
+);
+
+terrainsRouter.delete(
+  "/:id/photos/:photoId",
+  auth,
+  zValidator("param", z.object({ id: z.uuid(), photoId: z.uuid() })),
+  async (c) => {
+    const { id, photoId } = c.req.valid("param");
+    const { id: userId } = c.get("user");
+
+    // Authorization check
+    const theTerrain = await terrainRepository.getTerrainById(id);
+    if (!theTerrain || theTerrain.userId !== userId) {
+      return c.json({ message: "Forbidden" }, 403);
+    }
+
+    await terrainRepository.deletePhotoFromTerrain(id, photoId);
+
+    return c.json({ success: true }, 202);
+  }
+);
