@@ -1,6 +1,9 @@
 ```
-npm install
-npm run dev
+pnpm install
+
+pnpm exec prisma generate
+
+pnpm dev
 ```
 
 ```
